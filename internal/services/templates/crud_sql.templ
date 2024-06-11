@@ -1,0 +1,36 @@
+-- name: Get{{.Tablename}} :one
+select {{ range $i, $column := .Columns}}
+  {{if (ne $i 0) }}, {{ else }}  {{ end }}{{$column.ColumnName -}}
+{{ end}}
+from {{.FullTablename}}
+where
+{{range $i, $column := .Columns}}{{ if $column.IsPK }}  {{$column.ColumnName}} = ?{{end}}{{ end }}
+limit 1;
+
+-- name: List{{.Tablename}} :many
+select *
+from {{.FullTablename}};
+
+-- name: Create{{ .Tablename }} :execresult
+insert into {{.FullTablename}} ({{range $i, $column := .Columns}}
+  {{ if (ne $i 0) }}, {{ else }}  {{ end }}{{$column.ColumnName -}}
+{{ end}}
+) values (
+{{- range $i, $column := .Columns}}
+  {{ if (ne $i 0) }}, ?{{ else }}  ?{{ end -}}
+{{ end }}
+);
+
+-- name: Update{{ .Tablename }} :exec
+update {{.FullTablename}}
+set{{range $i, $column := .Columns}}
+  {{ if (ne $i 0) }}, {{$column.ColumnName}} = ?{{ else }}  {{$column.ColumnName}} = ?{{ end -}}
+{{ end}}
+where
+{{range $i, $column := .Columns}}{{ if $column.IsPK }}  {{$column.ColumnName}} = ?{{end}}{{ end }};
+
+-- name: Delete{{ .Tablename }} :exec
+delete from {{.FullTablename}}
+where
+{{range $i, $column := .Columns}}{{ if $column.IsPK }}  {{$column.ColumnName}} = ?{{end}}{{ end }};
+
