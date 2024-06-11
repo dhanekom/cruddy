@@ -48,7 +48,7 @@ func (s *CRUDGeneratorService) Generate(tablename string) error {
 		return err
 	}
 
-	templ, err := template.Parse(s.app.TemplatesFolder, "templates/crud_sql.templ")
+	templ, err := template.New("curd_sql").Parse(crud_sql_template)
 	if err != nil {
 		return err
 	}
