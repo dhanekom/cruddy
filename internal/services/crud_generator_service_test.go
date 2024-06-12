@@ -15,8 +15,6 @@ import (
 	"github.com/dhanekom/cruddy/internal/storage/database"
 )
 
-type dataFunc func(schema string) *cache.Cache[string, entities.DBTable]
-
 func TestListTables(t *testing.T) {
 	tests := []struct {
 		name       string
