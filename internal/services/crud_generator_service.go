@@ -3,16 +3,17 @@ package services
 import (
 	"context"
 	_ "embed"
+	"errors"
 	"fmt"
 	"io"
-	"os"
-	"text/template"
 
 	"github.com/dhanekom/cruddy/internal/configs"
 )
 
 //go:embed templates/crud_sql.templ
 var crud_sql_template string
+
+var errorInvalidSchema = errors.New("valid schema required")
 
 type CRUDGeneratorService struct {
 	app *configs.App
@@ -24,38 +25,20 @@ func NewCRUDGeneratorService(a *configs.App) *CRUDGeneratorService {
 	}
 }
 
-func (s *CRUDGeneratorService) ListTables(ctx context.Context, w io.Writer, schema string) error {
+func (s *CRUDGeneratorService) ListTables(ctx context.Context, out io.Writer, schema string) error {
+	if schema == "" {
+		return errorInvalidSchema
+	}
+
 	tables, err := s.app.DB.GetTables(ctx, schema)
 	if err != nil {
-		return err
+		return fmt.Errorf("ListTables - unable to get tables: %w", err)
 	}
 
-	var newline = ""
+	newline := ""
 	for _, table := range tables {
-		_, err = fmt.Fprintf(w, "%s%s", newline, table.Tablename)
-		if err != nil {
-			return err
-		}
+		fmt.Fprintf(out, "%s%s", newline, table.Tablename)
 		newline = "\n"
-	}
-
-	return nil
-}
-
-func (s *CRUDGeneratorService) Generate(tablename string) error {
-	tableInfo, err := s.app.DB.GetTableInfo(context.Background(), tablename)
-	if err != nil {
-		return err
-	}
-
-	templ, err := template.New("curd_sql").Parse(crud_sql_template)
-	if err != nil {
-		return err
-	}
-
-	err = templ.Execute(os.Stdout, tableInfo)
-	if err != nil {
-		return err
 	}
 
 	return nil

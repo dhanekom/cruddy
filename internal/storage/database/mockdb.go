@@ -11,12 +11,6 @@ type MockDBRepo struct {
 	DBTables *cache.Cache[string, entities.DBTable]
 }
 
-func NewMockDBRepo(dbTables *cache.Cache[string, entities.DBTable]) MockDBRepo {
-	return MockDBRepo{
-		DBTables: dbTables,
-	}
-}
-
 func (r MockDBRepo) GetTables(ctx context.Context, schema string) ([]entities.DBTable, error) {
 	tables := []entities.DBTable{}
 
