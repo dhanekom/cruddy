@@ -1,4 +1,4 @@
--- name: Get{{.Tablename}} :one
+-- name: Get{{title .Tablename}} :one
 select {{ range $i, $column := .Columns}}
   {{if (ne $i 0) }}, {{ else }}  {{ end }}{{$column.ColumnName -}}
 {{ end}}
@@ -7,11 +7,11 @@ where
 {{range $i, $column := .Columns}}{{ if $column.IsPK }}  {{$column.ColumnName}} = ?{{end}}{{ end }}
 limit 1;
 
--- name: List{{.Tablename}} :many
+-- name: List{{title .Tablename}} :many
 select *
 from {{.FullTablename}};
 
--- name: Create{{ .Tablename }} :execresult
+-- name: Create{{title .Tablename }} :execresult
 insert into {{.FullTablename}} ({{range $i, $column := .Columns}}
   {{ if (ne $i 0) }}, {{ else }}  {{ end }}{{$column.ColumnName -}}
 {{ end}}
@@ -21,7 +21,7 @@ insert into {{.FullTablename}} ({{range $i, $column := .Columns}}
 {{ end }}
 );
 
--- name: Update{{ .Tablename }} :exec
+-- name: Update{{title .Tablename }} :exec
 update {{.FullTablename}}
 set{{range $i, $column := .Columns}}
   {{ if (ne $i 0) }}, {{$column.ColumnName}} = ?{{ else }}  {{$column.ColumnName}} = ?{{ end -}}
@@ -29,7 +29,7 @@ set{{range $i, $column := .Columns}}
 where
 {{range $i, $column := .Columns}}{{ if $column.IsPK }}  {{$column.ColumnName}} = ?{{end}}{{ end }};
 
--- name: Delete{{ .Tablename }} :exec
+-- name: Delete{{title .Tablename }} :exec
 delete from {{.FullTablename}}
 where
 {{range $i, $column := .Columns}}{{ if $column.IsPK }}  {{$column.ColumnName}} = ?{{end}}{{ end }};

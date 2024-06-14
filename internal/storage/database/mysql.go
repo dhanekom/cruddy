@@ -38,7 +38,7 @@ func (r MysqlDBRepo) GetTables(ctx context.Context, schema string) ([]entities.D
 	return tables, nil
 }
 
-func (r MysqlDBRepo) GetTableInfo(ctx context.Context, tablename string) (*entities.DBTable, error) {
+func (r MysqlDBRepo) GetTableInfo(ctx context.Context, schema, tablename string) (*entities.DBTable, error) {
 	dbTable := entities.DBTable{}
 
 	err := r.db.SelectContext(ctx, &dbTable.Columns, `SELECT c.column_name, c.data_type, 
@@ -48,7 +48,8 @@ LEFT OUTER JOIN information_schema.KEY_COLUMN_USAGE kcu on
   kcu.TABLE_SCHEMA = c.TABLE_SCHEMA
   and kcu.TABLE_NAME = c.TABLE_NAME
   and kcu.COLUMN_NAME = c.COLUMN_NAME
-WHERE (c.table_name = ?)`, tablename)
+WHERE (c.TABLE_SCHEMA = ?)
+  AND (c.table_name = ?)`, schema, tablename)
 
 	if err != nil {
 		return &dbTable, err
@@ -64,8 +65,6 @@ WHERE (c.table_name = ?)`, tablename)
 	} else {
 		dbTable.Schema, dbTable.Tablename = "", tablename
 	}
-
-	dbTable.FullTablename = tablename
 
 	return &dbTable, nil
 }

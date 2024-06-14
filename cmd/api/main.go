@@ -111,7 +111,7 @@ func main() {
 						Action: func(cCtx *cli.Context) error {
 							crudService := services.NewCRUDGeneratorService(appConfigs)
 
-							err = crudService.Generate(cCtx.Args().First())
+							err = crudService.GenerateSQLCTemplate(context.Background(), os.Stdout, cCtx.Args().First())
 							if err != nil {
 								slog.Error(err.Error())
 								os.Exit(1)
